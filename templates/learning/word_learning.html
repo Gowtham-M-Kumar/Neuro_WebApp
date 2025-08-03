@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Word Learning</h2>
+<ul>
+  {% for code, label in categories %}
+    <li><a href="?category={{ code }}">{{ label }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %} 

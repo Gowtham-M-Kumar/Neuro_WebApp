@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Parent Dashboard - NEURO Learning Platform{% endblock %}
+
+{% block content %}
+<div class="child-dashboard-duo py-5">
+    <div class="duo-dashboard-container mx-auto">
+        <div class="duo-card welcome-card text-center shadow-sm mb-4">
+            <h2 class="duo-title mb-2">
+                <span class="me-2" style="font-size:2.5rem;">👨‍👩‍👧‍👦</span>Welcome, {{ user.get_full_name }}!
+            </h2>
+            <p class="duo-lead">Monitor your children's learning progress and stay connected with their therapists and teachers.</p>
+        </div>
+        <div class="duo-card shadow-sm p-4 mb-4">
+            <h3 class="duo-section-title mb-4 text-center">My Children</h3>
+            <div class="duo-dashboard-grid">
+                {% if children %}
+                    {% for child in children %}
+                    <div class="duo-module-card duo-blue text-center d-flex flex-column align-items-center justify-content-center">
+                        {% if child.user.profile_picture %}
+                        <img src="{{ child.user.profile_picture.url }}" alt="{{ child.full_name }}" class="rounded-circle mb-2" width="70" height="70">
+                        {% else %}
+                        <span class="duo-icon mb-2">🧒</span>
+                        {% endif %}
+                        <span class="duo-module-title">{{ child.full_name }}</span>
+                        <div class="text-white-50 small mb-1">Age: {{ child.age }}</div>
+                        <div class="text-white-50 small mb-2">Level: {{ child.learning_level|title }}</div>
+                        <div class="progress mb-2" style="height: 8px; background: #e9ecef;">
+                            <div class="progress-bar bg-success" style="width: 75%"></div>
+                        </div>
+                        <small class="text-white-50">75% Complete</small>
+                        <a href="#" class="btn btn-light btn-sm mt-2">View Progress</a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="duo-module-card duo-blue text-center d-flex flex-column align-items-center justify-content-center">
+                        <span class="duo-icon mb-2">🧒</span>
+                        <span class="duo-module-title">No children added yet</span>
+                        <div class="text-white-50 small">Contact your therapist or teacher to add your children to the platform.</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="duo-card shadow-sm p-4 mb-4">
+            <h3 class="duo-section-title mb-4 text-center">Recent Activities & Notifications</h3>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="duo-module-card duo-green text-start">
+                        <h5 class="mb-2">Recent Activities</h5>
+                        <ul class="list-unstyled mb-0">
+                            <li><b>Alphabet Learning - Letter A</b> <span class="badge bg-success ms-2">Completed</span> <br><small>Sarah</small></li>
+                            <li class="mt-2"><b>Morning Routine</b> <span class="badge bg-success ms-2">Completed</span> <br><small>John</small></li>
+                            <li class="mt-2"><b>Number Matching Game</b> <span class="badge bg-warning ms-2">In Progress</span> <br><small>Sarah</small></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="duo-module-card duo-gold text-start">
+                        <h5 class="mb-2">Notifications</h5>
+                        <ul class="list-unstyled mb-0">
+                            <li><b>New therapy session scheduled</b> <br><small>3 mins ago - Dr. Smith has scheduled a new session for Sarah on Friday.</small></li>
+                            <li class="mt-2"><b>Progress report available</b> <br><small>1 hour ago - John's weekly progress report is ready for review.</small></li>
+                            <li class="mt-2"><b>New learning activity assigned</b> <br><small>2 hours ago - Sarah has been assigned a new alphabet learning activity.</small></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="duo-card shadow-sm p-4">
+            <h3 class="duo-section-title mb-4 text-center">Quick Actions</h3>
+            <div class="duo-dashboard-grid">
+                <a href="#" class="duo-module-card duo-blue text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                    <span class="duo-icon mb-2">📊</span>
+                    <span class="duo-module-title">View Progress Reports</span>
+                </a>
+                <a href="#" class="duo-module-card duo-green text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                    <span class="duo-icon mb-2">📅</span>
+                    <span class="duo-module-title">Schedule Sessions</span>
+                </a>
+                <a href="#" class="duo-module-card duo-purple text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                    <span class="duo-icon mb-2">💬</span>
+                    <span class="duo-module-title">Contact Therapist</span>
+                </a>
+                <a href="#" class="duo-module-card duo-gold text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                    <span class="duo-icon mb-2">⚙️</span>
+                    <span class="duo-module-title">Settings</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NEURO Learn{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:400,700,800&display=swap">
+    <link rel="stylesheet" href="/static/css/child_dashboard_duolingo.css">
+    <link rel="stylesheet" href="/static/css/duo_header_footer.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Duolingo-style Header -->
+    <header class="duo-header">
+        <div class="container-fluid d-flex align-items-center justify-content-between py-2">
+            <div class="d-flex align-items-center">
+                <a href="/dashboard/" class="duo-logo-link">
+                    <img src="{% static 'img/green_brain_icon.png' %}" alt="NEURO Learn Logo" class="duo-logo" style="width:2.8rem; height:2.8rem; object-fit:contain; vertical-align:middle;">
+                    <span class="duo-brand">NEURO Learn</span>
+                </a>
+            </div>
+            <nav class="duo-nav d-flex align-items-center">
+                <a href="/dashboard/" class="duo-nav-link" title="Dashboard"><span class="duo-nav-icon">🏠</span><span class="duo-nav-label">Dashboard</span></a>
+                <a href="/routines/" class="duo-nav-link" title="My Routines"><span class="duo-nav-icon">📅</span><span class="duo-nav-label">Routines</span></a>
+                <a href="/learning/" class="duo-nav-link" title="Learning"><span class="duo-nav-icon">📚</span><span class="duo-nav-label">Learning</span></a>
+                <a href="/games/" class="duo-nav-link" title="Games"><span class="duo-nav-icon">🎮</span><span class="duo-nav-label">Games</span></a>
+                <a href="/drawing/" class="duo-nav-link" title="Drawing"><span class="duo-nav-icon">🎨</span><span class="duo-nav-label">Drawing</span></a>
+                <a href="/profile/" class="duo-nav-link duo-avatar-link ms-3" title="Profile">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="Profile" class="duo-avatar-img" style="background: none; box-shadow: none;">
+                    {% else %}
+                        <span class="duo-avatar">{{ user.first_name|default:user.username|first|upper }}</span>
+                    {% endif %}
+                </a>
+                <a href="/logout/" class="duo-nav-link ms-3" title="Logout">
+                    <span class="duo-nav-icon">🚪</span>
+                    <span class="duo-nav-label">Logout</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <!-- Duolingo-style Footer -->
+    <footer class="duo-footer mt-5">
+        <div class="duo-footer-main">
+            <div class="duo-footer-col">
+                <div class="duo-footer-logo">🧠 NEURO Learn</div>
+                <div class="duo-footer-slogan">Empowering children with special needs through personalized learning experiences.</div>
+            </div>
+            <div class="duo-footer-col">
+                <h5>Learning</h5>
+                <ul class="duo-footer-links">
+                    <li><a href="/learning/alphabet/">Alphabet Learning</a></li>
+                    <li><a href="/learning/numbers/">Number Learning</a></li>
+                    <li><a href="/learning/words/">Word Learning</a></li>
+                    <li><a href="/learning/progress/">Progress Dashboard</a></li>
+                </ul>
+            </div>
+            <div class="duo-footer-col">
+                <h5>Games & Activities</h5>
+                <ul class="duo-footer-links">
+                    <li><a href="/games/">Learning Games</a></li>
+                    <li><a href="/drawing/">Drawing Studio</a></li>
+                    <li><a href="/routines/">Visual Routines</a></li>
+                </ul>
+            </div>
+            <div class="duo-footer-col">
+                <h5>About</h5>
+                <ul class="duo-footer-links">
+                    <li><a href="/profile/">Profile</a></li>
+                    <li><a href="/dashboard/">Dashboard</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="duo-footer-bottom">
+            <span>© {{ now|date:'Y' }} NEURO Learning Platform. All rights reserved.</span>
+            <span>Made with ❤️ for inclusive learning</span>
+        </div>
+    </footer>
+    {% block extra_body %}{% endblock %}
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

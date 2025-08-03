@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Routines - NEURO Learn{% endblock %}
+
+{% block content %}
+<div class="duo-dashboard-container mx-auto py-5">
+    <div class="duo-card welcome-card text-center shadow-sm mb-4">
+        <h2 class="duo-title mb-2">
+            <span class="me-2" style="font-size:2.5rem;">📅</span>Routines
+        </h2>
+        <p class="duo-lead">Stay on track with your daily routines!</p>
+    </div>
+    <div class="duo-card shadow-sm p-4">
+        <h3 class="duo-section-title mb-4 text-center">Your Routines</h3>
+        <div class="duo-dashboard-grid">
+            {% for routine in routines %}
+            <div class="duo-module-card duo-green text-center d-flex flex-column align-items-center justify-content-center">
+                <span class="duo-icon mb-2">⏰</span>
+                <span class="duo-module-title">{{ routine.title }}</span>
+                <div class="mt-2 text-white-50 small">{{ routine.description|default:"No description" }}</div>
+                <div class="mt-2">
+                    <a href="{{ routine.get_absolute_url }}" class="btn btn-light btn-sm mt-2">View</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center w-100 text-muted">No routines available yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

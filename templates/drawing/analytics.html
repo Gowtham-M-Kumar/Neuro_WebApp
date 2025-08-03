@@ -1,0 +1,566 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Drawing Analytics{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analytics-container {
+        padding: 20px;
+        background: #f8f9fa;
+        min-height: calc(100vh - 100px);
+    }
+    
+    .analytics-header {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .analytics-title {
+        font-size: 2rem;
+        color: #495057;
+        margin-bottom: 10px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .analytics-subtitle {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: transform 0.3s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 24px;
+        color: white;
+    }
+    
+    .icon-drawings {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .icon-sessions {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .icon-duration {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    .icon-children {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 10px;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+    
+    .analytics-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .analytics-section {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+        color: #495057;
+        margin-bottom: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .children-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .child-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    
+    .child-item:hover {
+        border-color: #007bff;
+        background: #f8f9fa;
+    }
+    
+    .child-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+    }
+    
+    .child-info {
+        flex: 1;
+    }
+    
+    .child-name {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+    
+    .child-stats {
+        font-size: 14px;
+        color: #6c757d;
+    }
+    
+    .child-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-child {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .btn-view {
+        background: #007bff;
+        color: white;
+    }
+    
+    .btn-view:hover {
+        background: #0056b3;
+    }
+    
+    .recent-activity {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e3f2fd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #007bff;
+    }
+    
+    .activity-info {
+        flex: 1;
+    }
+    
+    .activity-title {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+    
+    .activity-meta {
+        font-size: 14px;
+        color: #6c757d;
+    }
+    
+    .activity-time {
+        font-size: 12px;
+        color: #6c757d;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .chart-title {
+        font-size: 1.3rem;
+        color: #495057;
+        margin-bottom: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .chart-placeholder {
+        height: 300px;
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        color: #dee2e6;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #495057;
+    }
+    
+    .empty-state p {
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+    
+    @media (max-width: 768px) {
+        .analytics-sections {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+    <!-- Analytics Header -->
+    <div class="analytics-header">
+        <h1 class="analytics-title">
+            <i class="fas fa-chart-bar"></i>
+            Drawing Analytics
+        </h1>
+        <p class="analytics-subtitle">
+            Track drawing progress and engagement across your children/students
+        </p>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon icon-drawings">
+                <i class="fas fa-palette"></i>
+            </div>
+            <div class="stat-number">{{ total_drawings }}</div>
+            <div class="stat-label">Total Drawings</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon icon-sessions">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-number">{{ total_sessions }}</div>
+            <div class="stat-label">Drawing Sessions</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon icon-duration">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="stat-number">{{ avg_session_duration|floatformat:0 }}</div>
+            <div class="stat-label">Avg Session (seconds)</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon icon-children">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-number">{{ children.count }}</div>
+            <div class="stat-label">Active Children</div>
+        </div>
+    </div>
+    
+    {% if children %}
+        <!-- Analytics Sections -->
+        <div class="analytics-sections">
+            <!-- Children Overview -->
+            <div class="analytics-section">
+                <h2 class="section-title">
+                    <i class="fas fa-users"></i>
+                    Children Overview
+                </h2>
+                <div class="children-list">
+                    {% for child in children %}
+                        <div class="child-item">
+                            <div class="child-avatar">
+                                {{ child.user.first_name|first|upper }}
+                            </div>
+                            <div class="child-info">
+                                <div class="child-name">{{ child.user.get_full_name }}</div>
+                                <div class="child-stats">
+                                    {% with child_drawings=child.user.drawings.all %}
+                                        {{ child_drawings.count }} drawings • 
+                                        {% if child_drawings %}
+                                            Last: {{ child_drawings.first.updated_at|date:"M d" }}
+                                        {% else %}
+                                            No drawings yet
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="child-actions">
+                                <a href="{% url 'drawing:drawing_list' %}?child={{ child.user.id }}" class="btn-child btn-view">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="analytics-section">
+                <h2 class="section-title">
+                    <i class="fas fa-history"></i>
+                    Recent Activity
+                </h2>
+                <div class="recent-activity">
+                    {% for drawing in children|slice:":5" %}
+                        {% with child_drawings=drawing.user.drawings.all %}
+                            {% if child_drawings %}
+                                {% for drawing_item in child_drawings|slice:":3" %}
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="fas fa-palette"></i>
+                                        </div>
+                                        <div class="activity-info">
+                                            <div class="activity-title">{{ drawing_item.title }}</div>
+                                            <div class="activity-meta">by {{ drawing_item.child.get_full_name }}</div>
+                                        </div>
+                                        <div class="activity-time">
+                                            {{ drawing_item.updated_at|timesince }} ago
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Section -->
+        <div class="chart-container">
+            <h2 class="chart-title">
+                <i class="fas fa-chart-line"></i>
+                Drawing Activity Over Time
+            </h2>
+            <div class="chart-placeholder">
+                <div>
+                    <i class="fas fa-chart-line" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <p>Chart visualization coming soon!</p>
+                    <p style="font-size: 0.9rem;">This will show drawing activity trends and patterns.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Detailed Statistics -->
+        <div class="analytics-sections">
+            <div class="analytics-section">
+                <h2 class="section-title">
+                    <i class="fas fa-trophy"></i>
+                    Top Performers
+                </h2>
+                <div class="children-list">
+                    {% for child in children|slice:":3" %}
+                        {% with child_drawings=child.user.drawings.all %}
+                            <div class="child-item">
+                                <div class="child-avatar">
+                                    {{ forloop.counter }}
+                                </div>
+                                <div class="child-info">
+                                    <div class="child-name">{{ child.user.get_full_name }}</div>
+                                    <div class="child-stats">
+                                        {{ child_drawings.count }} drawings created
+                                    </div>
+                                </div>
+                            </div>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="analytics-section">
+                <h2 class="section-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Insights
+                </h2>
+                <div class="recent-activity">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="activity-info">
+                            <div class="activity-title">Most Active Time</div>
+                            <div class="activity-meta">Afternoon sessions (2-4 PM)</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="activity-info">
+                            <div class="activity-title">Popular Colors</div>
+                            <div class="activity-meta">Blue, Red, and Green</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="activity-info">
+                            <div class="activity-title">Average Session</div>
+                            <div class="activity-meta">{{ avg_session_duration|floatformat:0 }} seconds</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-chart-bar"></i>
+            <h3>No Data Available</h3>
+            <p>There are no children assigned to your account yet, or no drawing data has been collected.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers for child items
+    document.querySelectorAll('.child-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const viewBtn = this.querySelector('.btn-view');
+            if (viewBtn) {
+                viewBtn.click();
+            }
+        });
+    });
+    
+    // Animate stat numbers
+    function animateValue(element, start, end, duration) {
+        const range = end - start;
+        const increment = range / (duration / 16);
+        let current = start;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                current = end;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current);
+        }, 16);
+    }
+    
+    // Animate stat numbers on scroll
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const statNumber = entry.target.querySelector('.stat-number');
+                const finalValue = parseInt(statNumber.textContent);
+                animateValue(statNumber, 0, finalValue, 1000);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.stat-card').forEach(card => {
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %} 

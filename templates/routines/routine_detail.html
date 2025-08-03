@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ routine.title }} - NEURO Learning{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'routines:routine_list' %}">Routines</a></li>
+                            <li class="breadcrumb-item active">{{ routine.title }}</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-calendar-check text-primary me-2"></i>
+                        {{ routine.title }}
+                    </h1>
+                    {% if routine.description %}
+                    <p class="text-muted mb-0">{{ routine.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="d-flex gap-2">
+                    {% if user_role in 'therapist,teacher' and routine.created_by == user %}
+                    <a href="{% url 'routines:routine_edit' routine.id %}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit me-2"></i>Edit
+                    </a>
+                    <a href="{% url 'routines:routine_progress' routine.id %}" class="btn btn-outline-info">
+                        <i class="fas fa-chart-line me-2"></i>Progress
+                    </a>
+                    {% endif %}
+                    {% if user_role in 'therapist,teacher' %}
+                    <a href="{% url 'routines:routine_schedule' routine.id %}" class="btn btn-outline-success">
+                        <i class="fas fa-clock me-2"></i>Schedule
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Tasks Section -->
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-tasks text-primary me-2"></i>
+                                    Tasks
+                                </h5>
+                                {% if user_role in 'therapist,teacher' and routine.created_by == user %}
+                                <a href="{% url 'routines:task_create' routine.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus me-2"></i>Add Task
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if tasks %}
+                            <div class="task-list" id="taskList">
+                                {% for task in tasks %}
+                                <div class="task-item mb-3 p-3 border rounded" data-task-id="{{ task.id }}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            {% if task.image %}
+                                            <img src="{{ task.image.url }}" alt="{{ task.title }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                                            {% else %}
+                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-image text-muted"></i>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">{{ task.title }}</h6>
+                                            {% if task.description %}
+                                            <p class="text-muted small mb-1">{{ task.description }}</p>
+                                            {% endif %}
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-info me-2">{{ task.estimated_duration }} min</span>
+                                                {% if task.is_required %}
+                                                <span class="badge bg-warning">Required</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            {% if user_role in 'child,parent' %}
+                                            <form method="post" action="{% url 'routines:task_complete' task.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                {% if user_role == 'parent' %}
+                                                <select name="child_id" class="form-select form-select-sm mb-2" required>
+                                                    <option value="">Select Child</option>
+                                                    {% for child in user.parent_profile.children.all %}
+                                                    <option value="{{ child.id }}">{{ child.get_full_name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% endif %}
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-check me-1"></i>Complete
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                            {% if user_role in 'therapist,teacher' and routine.created_by == user %}
+                                            <a href="{% url 'routines:task_edit' task.id %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-tasks fa-2x text-muted mb-3"></i>
+                                <h6 class="text-muted">No tasks yet</h6>
+                                <p class="text-muted small">Add tasks to create a complete routine.</p>
+                                {% if user_role in 'therapist,teacher' and routine.created_by == user %}
+                                <a href="{% url 'routines:task_create' routine.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus me-2"></i>Add First Task
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                Routine Info
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="text-primary fw-bold">{{ tasks.count }}</div>
+                                    <small class="text-muted">Total Tasks</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-success fw-bold">{{ routine.assigned_to.count }}</div>
+                                    <small class="text-muted">Assigned To</small>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="mb-2">
+                                <small class="text-muted">Created by:</small><br>
+                                <strong>{{ routine.created_by.get_full_name }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Created:</small><br>
+                                <strong>{{ routine.created_at|date:"M d, Y" }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Status:</small><br>
+                                <span class="badge bg-{% if routine.is_active %}success{% else %}secondary{% endif %}">
+                                    {% if routine.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user_role in 'therapist,teacher' %}
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-users text-primary me-2"></i>
+                                Assigned Children
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {% if routine.assigned_to.all %}
+                            <ul class="list-unstyled mb-0">
+                                {% for child in routine.assigned_to.all %}
+                                <li class="mb-2">
+                                    <div class="d-flex align-items-center">
+                                        {% if child.profile_picture %}
+                                        <img src="{{ child.profile_picture.url }}" alt="{{ child.get_full_name }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </div>
+                                        {% endif %}
+                                        <span>{{ child.get_full_name }}</span>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="text-muted small mb-0">No children assigned yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Drag and drop functionality for task reordering
+document.addEventListener('DOMContentLoaded', function() {
+    const taskList = document.getElementById('taskList');
+    if (taskList && '{{ user_role }}' === 'therapist' || '{{ user_role }}' === 'teacher') {
+        // Initialize drag and drop here
+        console.log('Drag and drop ready for task reordering');
+    }
+});
+</script>
+{% endblock %} 

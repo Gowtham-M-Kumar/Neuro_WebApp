@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Game Dashboard - NEURO Learning{% endblock %}
+
+{% block extra_css %}
+<style>
+    .game-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 15px 0;
+        color: white;
+        text-decoration: none;
+        display: block;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .game-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .game-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+    
+    .difficulty-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .progress-ring {
+        width: 60px;
+        height: 60px;
+        margin: 10px auto;
+    }
+    
+    .progress-ring circle {
+        fill: none;
+        stroke-width: 4;
+        stroke-linecap: round;
+    }
+    
+    .progress-ring .bg {
+        stroke: rgba(255,255,255,0.2);
+    }
+    
+    .progress-ring .progress {
+        stroke: #28a745;
+        stroke-dasharray: 157;
+        stroke-dashoffset: 157;
+        transition: stroke-dashoffset 0.3s ease;
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 15px;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+    
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .welcome-banner {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .welcome-banner h1 {
+        margin-bottom: 10px;
+    }
+    
+    .welcome-banner p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <h1>
+                    <i class="fas fa-gamepad me-3"></i>
+                    Welcome to Your Game Dashboard!
+                </h1>
+                <p>Ready to have fun and learn? Choose a game to play!</p>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stat-item">
+                            <div class="stat-number">{{ total_activities }}</div>
+                            <div class="stat-label">Total Games</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stat-item">
+                            <div class="stat-number">{{ completed_activities }}</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stat-item">
+                            <div class="stat-number">{{ average_score|floatformat:1 }}%</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stat-item">
+                            <div class="stat-number">{{ total_time|floatformat:0 }}m</div>
+                            <div class="stat-label">Total Time</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color Matching Game Section -->
+            {% if color_matching_game %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h3 class="mb-4">
+                        <i class="fas fa-palette me-2 text-success"></i>
+                        Available Games
+                    </h3>
+                </div>
+            </div>
+            
+            <div class="row mb-5">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <a href="{% url 'games:color_matching_levels' %}" class="game-card position-relative" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                        <div class="difficulty-badge bg-success">
+                            Learning Game
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="game-icon">
+                                🎨
+                            </div>
+                            
+                            <h4 class="mb-2">{{ color_matching_game.name }}</h4>
+                            <p class="mb-3">{{ color_matching_game.description|truncatewords:10 }}</p>
+                            
+                            <!-- Progress Ring -->
+                            <div class="progress-ring">
+                                <svg width="60" height="60">
+                                    <circle class="bg" cx="30" cy="30" r="25"></circle>
+                                    <circle class="progress" cx="30" cy="30" r="25" 
+                                            style="stroke-dashoffset: {{ color_matching_progress_value }}"></circle>
+                                </svg>
+                            </div>
+                            
+                            <div class="mt-2">
+                                {% if color_matching_progress %}
+                                    <span class="badge bg-success">Level {{ color_matching_progress.highest_level_completed }}/5</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Start Playing</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-gamepad fa-3x text-muted"></i>
+                </div>
+                <h4 class="text-muted">No Games Available</h4>
+                <p class="text-muted">Check back later for new games!</p>
+            </div>
+            {% endif %}
+
+            <!-- Game Tips -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                Game Tips
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h6><i class="fas fa-clock text-primary me-2"></i>Take Your Time</h6>
+                                    <p class="text-muted small">Don't rush! Take your time to think and make the best choices.</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6><i class="fas fa-star text-warning me-2"></i>Practice Makes Perfect</h6>
+                                    <p class="text-muted small">The more you play, the better you'll get. Keep practicing!</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6><i class="fas fa-heart text-danger me-2"></i>Have Fun!</h6>
+                                    <p class="text-muted small">Remember, learning should be fun! Enjoy playing the games.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

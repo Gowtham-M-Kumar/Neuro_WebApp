@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Learning Dashboard - NEURO Learn{% endblock %}
+
+{% block content %}
+<div class="duo-dashboard-container mx-auto py-5">
+    <div class="duo-card welcome-card text-center shadow-sm mb-4">
+        <h2 class="duo-title mb-2">
+            <span class="duo-svg-icon duo-green-bg">{% include 'icons/book.svg' %}</span> Learning
+        </h2>
+        <p class="duo-lead">Explore interactive modules to boost your skills!</p>
+    </div>
+    <div class="duo-card shadow-sm p-4">
+        <h3 class="duo-section-title mb-4 text-center">Learning Modules</h3>
+        <div class="duo-dashboard-grid">
+            <a href="{% url 'learning:alphabet_learning' %}" class="duo-module-card duo-green text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                <span class="duo-svg-icon">{% include 'icons/alphabet.svg' %}</span>
+                <span class="duo-module-title">Alphabet Learning & Tracing</span>
+            </a>
+            <a href="{% url 'learning:number_learning' %}" class="duo-module-card duo-blue text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                <span class="duo-svg-icon">{% include 'icons/numbers.svg' %}</span>
+                <span class="duo-module-title">Number Learning & Counting</span>
+            </a>
+            <a href="{% url 'learning:word_learning' %}" class="duo-module-card duo-purple text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                <span class="duo-svg-icon">{% include 'icons/words.svg' %}</span>
+                <span class="duo-module-title">Word Learning & Matching</span>
+            </a>
+            <a href="{% url 'learning:progress_dashboard' %}" class="duo-module-card duo-gold text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                <span class="duo-svg-icon">{% include 'icons/progress.svg' %}</span>
+                <span class="duo-module-title">Progress Dashboard</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

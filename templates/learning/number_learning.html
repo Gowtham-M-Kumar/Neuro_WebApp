@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Number Learning</h2>
+<div class="number-list">
+  {% for number in numbers %}
+    <div class="number-card">
+      <a href="{% url 'number_detail' number.value %}">
+        <img src="{{ number.image.url }}" alt="{{ number.value }}">
+        <div class="number-value">{{ number.value }}</div>
+      </a>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %} 

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Color Matching Game - NEURO Learn{% endblock %}
+
+{% block content %}
+<style>
+.duo-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.1rem;
+    margin-top: 1.1rem;
+}
+@media (max-width: 1100px) {
+    .duo-dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.7rem;
+    }
+}
+@media (max-width: 700px) {
+    .duo-dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}
+.duo-module-card {
+    margin-bottom: 0;
+    padding: 1.3rem 0.7rem;
+}
+</style>
+<div class="duo-dashboard-container mx-auto py-5">
+    <div class="duo-card welcome-card text-center shadow-sm mb-4">
+        <h2 class="duo-title mb-2">
+            <span class="me-2" style="font-size:2.5rem;">🎨</span>Color Matching Game
+        </h2>
+        <p class="duo-lead">Match colors to improve your memory and concentration!</p>
+    </div>
+    <div class="duo-card shadow-sm p-4">
+        <h3 class="duo-section-title mb-4 text-center">Levels</h3>
+        <div class="duo-dashboard-grid">
+            {% for level in levels %}
+            {% cycle 'duo-blue-bg' 'duo-green-bg' 'duo-purple-bg' 'duo-yellow-bg' as level_bg silent %}
+            <div class="duo-module-card {{ level_bg }} text-center d-flex flex-column align-items-center justify-content-center" style="background: {% cycle 'linear-gradient(135deg,#e0f7fa,#a259ff22)' 'linear-gradient(135deg,#f3e7ff,#58cc0222)' 'linear-gradient(135deg,#e0f7fa,#ffd60022)' 'linear-gradient(135deg,#f3e7ff,#1cb0f622)' silent %};">
+                <span class="duo-icon mb-2">🔢</span>
+                <span class="duo-module-title">Level {{ level.level }}</span>
+                <div class="mt-2 text-white-50 small">{{ level.name }}</div>
+                <div class="mt-2">
+                    <a href="{% url 'games:color_matching_game' level.level %}" class="btn btn-light btn-sm mt-2">Play</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center w-100 text-muted">No levels available yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="duo-card shadow-sm p-4 mb-4">
+        <h3 class="duo-section-title mb-3 text-center">Your Progress</h3>
+        <div class="row text-center mb-3">
+            <div class="col-md-4 mb-2">
+                <div class="duo-module-title">{{ progress.highest_level_completed }}/{{ levels.count }}</div>
+                <div class="text-muted">Levels Completed</div>
+            </div>
+            <div class="col-md-4 mb-2">
+                <div class="duo-module-title">{{ progress.total_score }}</div>
+                <div class="text-muted">Total Score</div>
+            </div>
+            <div class="col-md-4 mb-2">
+                <div class="duo-module-title">{{ progress.average_accuracy|floatformat:1 }}%</div>
+                <div class="text-muted">Average Accuracy</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

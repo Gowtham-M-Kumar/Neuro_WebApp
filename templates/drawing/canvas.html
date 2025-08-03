@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Drawing Canvas - NEURO Learn{% endblock %}
+
+{% block content %}
+<div class="duo-dashboard-container mx-auto py-5">
+    <div class="duo-card shadow-sm p-4" style="max-width: 1000px; margin: 0 auto;">
+        <h2 class="duo-title mb-3 text-center">Drawing Canvas</h2>
+        <div class="mb-4 text-center text-muted">Create and express your creativity!</div>
+        <div class="d-flex flex-row gap-4 align-items-start">
+            <!-- Toolbar -->
+            <div class="d-flex flex-column align-items-center gap-3" style="min-width: 70px;">
+                <button class="btn btn-outline-secondary tool-button" data-tool="brush" title="Brush">🖌️</button>
+                <button class="btn btn-outline-secondary tool-button" data-tool="eraser" title="Eraser">🧽</button>
+                <button class="btn btn-outline-secondary tool-button" data-tool="clear" title="Clear Canvas">🗑️</button>
+                <button class="btn btn-outline-secondary tool-button" data-tool="undo" title="Undo">↩️</button>
+                <button class="btn btn-outline-secondary tool-button" data-tool="redo" title="Redo">↪️</button>
+            </div>
+            <!-- Canvas and Controls -->
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="fw-bold" style="font-size: 1.15rem;">{{ drawing.title|default:"New Drawing" }}</div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success btn-sm" id="saveBtn">Save</button>
+                        <button class="btn btn-outline-primary btn-sm" id="newVersionBtn">New Version</button>
+                        <button class="btn btn-outline-secondary btn-sm" id="exportBtn">Export</button>
+                        <a href="{% url 'drawing:drawing_dashboard' %}" class="btn btn-outline-secondary btn-sm">Back</a>
+                    </div>
+                </div>
+                <div class="canvas-wrapper" style="background: #fff; border-radius: 1.2rem; box-shadow: 0 2px 12px rgba(60,60,60,0.10); overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <canvas id="drawingCanvas" width="800" height="600" style="border: 2px solid #E6F4EA; border-radius: 1rem;"></canvas>
+                </div>
+                <div class="d-flex flex-row gap-3 mt-3 align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold">Color:</span>
+                        <input type="color" id="colorPicker" value="#000000" style="width: 36px; height: 36px; border: none; border-radius: 50%; background: #F7F7F7;">
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold">Brush Size:</span>
+                        <input type="range" id="brushSize" min="2" max="20" value="2" style="width: 120px;">
+                        <span id="brushSizeValue">2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="save-indicator" id="saveIndicator">
+    <span id="saveMessage"></span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/drawing_canvas.js' %}"></script>
+<script>
+// Minimal JS for color picker and brush size
+const colorPicker = document.getElementById('colorPicker');
+const brushSize = document.getElementById('brushSize');
+const brushSizeValue = document.getElementById('brushSizeValue');
+if (brushSize && brushSizeValue) {
+    brushSize.addEventListener('input', function() {
+        brushSizeValue.textContent = this.value;
+    });
+}
+// (You can integrate this with your DrawingCanvas JS logic)
+</script>
+{% endblock %} 

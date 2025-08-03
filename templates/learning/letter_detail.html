@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Learn Letter: {{ letter.char }}</h2>
+<img src="{{ letter.image.url }}" alt="{{ letter.char }}" style="max-width:200px;">
+<div id="tracing-canvas-container">
+  <canvas id="tracing-canvas" width="400" height="400" style="border:1px solid #ccc;"></canvas>
+</div>
+<button id="retry-btn">Retry</button>
+<div id="reward-area"></div>
+<script src="/static/js/letter_tracing.js"></script>
+{% endblock %} 

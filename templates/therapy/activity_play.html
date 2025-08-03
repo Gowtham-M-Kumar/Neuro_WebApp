@@ -1,0 +1,815 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ activity.title }} - NEURO Learning{% endblock %}
+
+{% block extra_css %}
+<style>
+    .game-container {
+        min-height: 500px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+        color: white;
+    }
+    
+    .matching-game {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+    }
+    
+    .card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 3px solid transparent;
+        color: #333;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    
+    .card.selected {
+        border-color: #ffd700;
+        background: #fff8dc;
+    }
+    
+    .card.matched {
+        border-color: #28a745;
+        background: #d4edda;
+        opacity: 0.7;
+    }
+    
+    .card img {
+        max-width: 80px;
+        max-height: 80px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    
+    .focus-game {
+        text-align: center;
+    }
+    
+    .target {
+        font-size: 3rem;
+        margin: 20px;
+        padding: 20px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 10px;
+        display: inline-block;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .target:hover {
+        background: rgba(255,255,255,0.3);
+        transform: scale(1.1);
+    }
+    
+    .target.clicked {
+        background: #28a745;
+        transform: scale(0.9);
+    }
+    
+    .memory-game {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .memory-card {
+        aspect-ratio: 1;
+        background: #fff;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .memory-card.flipped {
+        background: #007bff;
+        color: white;
+        transform: rotateY(180deg);
+    }
+    
+    .memory-card.matched {
+        background: #28a745;
+        color: white;
+        border-color: #28a745;
+    }
+    
+    .motor-game {
+        text-align: center;
+    }
+    
+    .drawing-area {
+        background: white;
+        border-radius: 10px;
+        margin: 20px auto;
+        max-width: 500px;
+        height: 300px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        background: rgba(255,255,255,0.2);
+        border-radius: 10px;
+        height: 20px;
+        margin: 20px 0;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        background: #28a745;
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+    
+    .game-controls {
+        margin: 20px 0;
+        text-align: center;
+    }
+    
+    .btn-game {
+        background: rgba(255,255,255,0.2);
+        border: 2px solid white;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 5px;
+    }
+    
+    .btn-game:hover {
+        background: white;
+        color: #667eea;
+    }
+    
+    .score-display {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 15px;
+        margin: 20px 0;
+        text-align: center;
+    }
+    
+    .timer {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'therapy:activity_list' %}">Activities</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'therapy:activity_detail' activity.id %}">{{ activity.title }}</a></li>
+                            <li class="breadcrumb-item active">Play</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-gamepad text-primary me-2"></i>
+                        {{ activity.title }}
+                    </h1>
+                    <p class="text-muted mb-0">{{ activity.description }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'therapy:activity_detail' activity.id %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Activity
+                    </a>
+                </div>
+            </div>
+
+            <!-- Game Instructions -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        Instructions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ activity.instructions|default:"Complete the activity to earn points!" }}</p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>Type:</strong> {{ activity.get_activity_type_display }}
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Difficulty:</strong> 
+                            <span class="badge bg-{% if activity.difficulty_level == 'easy' %}success{% elif activity.difficulty_level == 'medium' %}warning{% else %}danger{% endif %}">
+                                {{ activity.get_difficulty_level_display }}
+                            </span>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Best Score:</strong> <span id="best-score">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Container -->
+            <div class="game-container">
+                <div class="score-display">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="timer" id="timer">Time: 00:00</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="score" id="score">Score: 0</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="progress" id="progress">Progress: 0%</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+
+                <!-- Game Content -->
+                <div id="game-content">
+                    {% if activity.activity_type == 'matching' %}
+                    <!-- Matching Game -->
+                    <div class="matching-game" id="matching-game">
+                        <!-- Cards will be generated by JavaScript -->
+                    </div>
+                    
+                    {% elif activity.activity_type == 'focus' %}
+                    <!-- Focus Game -->
+                    <div class="focus-game" id="focus-game">
+                        <h3>Click the target when it appears!</h3>
+                        <div id="target-area">
+                            <div class="target" id="target" style="display: none;">🎯</div>
+                        </div>
+                    </div>
+                    
+                    {% elif activity.activity_type == 'memory' %}
+                    <!-- Memory Game -->
+                    <div class="memory-game" id="memory-game">
+                        <!-- Cards will be generated by JavaScript -->
+                    </div>
+                    
+                    {% elif activity.activity_type == 'motor' %}
+                    <!-- Motor Skills Game -->
+                    <div class="motor-game" id="motor-game">
+                        <h3>Draw the shape shown below!</h3>
+                        <div class="drawing-area" id="drawing-area">
+                            <canvas id="drawing-canvas" width="500" height="300"></canvas>
+                        </div>
+                        <div id="shape-display" class="mt-3">
+                            <div id="target-shape" style="font-size: 3rem;">⭐</div>
+                        </div>
+                    </div>
+                    
+                    {% elif activity.activity_type == 'sorting' %}
+                    <!-- Sorting Game -->
+                    <div class="sorting-game" id="sorting-game">
+                        <h3>Sort the items into the correct categories!</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <h5>Category 1</h5>
+                                    <div id="category-1" class="sorting-area"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <h5>Category 2</h5>
+                                    <div id="category-2" class="sorting-area"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="items-to-sort" class="mt-3">
+                            <!-- Items will be generated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    {% elif activity.activity_type == 'sequencing' %}
+                    <!-- Sequencing Game -->
+                    <div class="sequencing-game" id="sequencing-game">
+                        <h3>Arrange the items in the correct order!</h3>
+                        <div id="sequence-area" class="mt-3">
+                            <!-- Sequence will be generated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    {% else %}
+                    <!-- Default Game -->
+                    <div class="text-center">
+                        <h3>Activity Type: {{ activity.get_activity_type_display }}</h3>
+                        <p>This activity type is not yet implemented.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Game Controls -->
+                <div class="game-controls">
+                    <button class="btn-game" id="start-game">
+                        <i class="fas fa-play me-2"></i>Start Game
+                    </button>
+                    <button class="btn-game" id="pause-game" style="display: none;">
+                        <i class="fas fa-pause me-2"></i>Pause
+                    </button>
+                    <button class="btn-game" id="reset-game">
+                        <i class="fas fa-redo me-2"></i>Reset
+                    </button>
+                    <button class="btn-game" id="submit-game" style="display: none;">
+                        <i class="fas fa-check me-2"></i>Submit
+                    </button>
+                </div>
+            </div>
+
+            <!-- Previous Attempts -->
+            {% if attempts %}
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history text-primary me-2"></i>
+                        Previous Attempts
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Score</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attempt in attempts %}
+                                <tr>
+                                    <td>{{ attempt.started_at|date:"M d, Y H:i" }}</td>
+                                    <td>{{ attempt.score }}/{{ attempt.max_score }}</td>
+                                    <td>{{ attempt.time_taken }}s</td>
+                                    <td>
+                                        <span class="badge bg-{% if attempt.is_successful %}success{% else %}warning{% endif %}">
+                                            {% if attempt.is_successful %}Success{% else %}In Progress{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Submit Form (Hidden) -->
+<form id="submit-form" method="post" action="{% url 'therapy:activity_submit' assignment.id %}" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="score" id="final-score" value="0">
+    <input type="hidden" name="max_score" id="max-score" value="100">
+    <input type="hidden" name="time_taken" id="final-time" value="0">
+    <input type="hidden" name="is_successful" id="is-successful" value="true">
+    <input type="hidden" name="notes" id="game-notes" value="">
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Game state
+let gameState = {
+    isPlaying: false,
+    score: 0,
+    maxScore: 100,
+    startTime: null,
+    timer: null,
+    gameType: '{{ activity.activity_type }}',
+    items: {{ activity.items.all|safe|default:"[]" }},
+    difficulty: '{{ activity.difficulty_level }}'
+};
+
+// Initialize game based on type
+document.addEventListener('DOMContentLoaded', function() {
+    initializeGame();
+    setupEventListeners();
+});
+
+function initializeGame() {
+    switch(gameState.gameType) {
+        case 'matching':
+            initializeMatchingGame();
+            break;
+        case 'focus':
+            initializeFocusGame();
+            break;
+        case 'memory':
+            initializeMemoryGame();
+            break;
+        case 'motor':
+            initializeMotorGame();
+            break;
+        case 'sorting':
+            initializeSortingGame();
+            break;
+        case 'sequencing':
+            initializeSequencingGame();
+            break;
+    }
+}
+
+function setupEventListeners() {
+    document.getElementById('start-game').addEventListener('click', startGame);
+    document.getElementById('pause-game').addEventListener('click', pauseGame);
+    document.getElementById('reset-game').addEventListener('click', resetGame);
+    document.getElementById('submit-game').addEventListener('click', submitGame);
+}
+
+function startGame() {
+    gameState.isPlaying = true;
+    gameState.startTime = Date.now();
+    gameState.score = 0;
+    
+    document.getElementById('start-game').style.display = 'none';
+    document.getElementById('pause-game').style.display = 'inline-block';
+    document.getElementById('submit-game').style.display = 'inline-block';
+    
+    startTimer();
+    startGameLogic();
+}
+
+function pauseGame() {
+    gameState.isPlaying = false;
+    clearInterval(gameState.timer);
+    
+    document.getElementById('start-game').style.display = 'inline-block';
+    document.getElementById('pause-game').style.display = 'none';
+}
+
+function resetGame() {
+    gameState.isPlaying = false;
+    gameState.score = 0;
+    gameState.startTime = null;
+    clearInterval(gameState.timer);
+    
+    document.getElementById('score').textContent = 'Score: 0';
+    document.getElementById('timer').textContent = 'Time: 00:00';
+    document.getElementById('progress-fill').style.width = '0%';
+    document.getElementById('progress').textContent = 'Progress: 0%';
+    
+    document.getElementById('start-game').style.display = 'inline-block';
+    document.getElementById('pause-game').style.display = 'none';
+    document.getElementById('submit-game').style.display = 'none';
+    
+    initializeGame();
+}
+
+function startTimer() {
+    gameState.timer = setInterval(() => {
+        if (gameState.isPlaying) {
+            const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('timer').textContent = `Time: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }, 1000);
+}
+
+function updateScore(points) {
+    gameState.score += points;
+    document.getElementById('score').textContent = `Score: ${gameState.score}`;
+    
+    const progress = Math.min((gameState.score / gameState.maxScore) * 100, 100);
+    document.getElementById('progress-fill').style.width = progress + '%';
+    document.getElementById('progress').textContent = `Progress: ${Math.round(progress)}%`;
+}
+
+function submitGame() {
+    const timeTaken = Math.floor((Date.now() - gameState.startTime) / 1000);
+    const isSuccessful = gameState.score >= (gameState.maxScore * 0.7); // 70% threshold
+    
+    document.getElementById('final-score').value = gameState.score;
+    document.getElementById('max-score').value = gameState.maxScore;
+    document.getElementById('final-time').value = timeTaken;
+    document.getElementById('is-successful').value = isSuccessful;
+    document.getElementById('game-notes').value = `Completed ${gameState.gameType} game with ${gameState.score} points`;
+    
+    document.getElementById('submit-form').submit();
+}
+
+// Game-specific implementations
+function initializeMatchingGame() {
+    const container = document.getElementById('matching-game');
+    container.innerHTML = '';
+    
+    // Create pairs of cards
+    const pairs = [];
+    for (let i = 0; i < 6; i++) {
+        pairs.push(i, i);
+    }
+    
+    // Shuffle cards
+    for (let i = pairs.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+    }
+    
+    let selectedCards = [];
+    let matchedPairs = 0;
+    
+    pairs.forEach((value, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.value = value;
+        card.dataset.index = index;
+        
+        card.innerHTML = `
+            <div class="card-back">❓</div>
+            <div class="card-front" style="display: none;">${getEmoji(value)}</div>
+        `;
+        
+        card.addEventListener('click', () => {
+            if (!gameState.isPlaying || card.classList.contains('matched') || card.classList.contains('selected')) {
+                return;
+            }
+            
+            card.classList.add('selected');
+            card.querySelector('.card-back').style.display = 'none';
+            card.querySelector('.card-front').style.display = 'block';
+            
+            selectedCards.push(card);
+            
+            if (selectedCards.length === 2) {
+                if (selectedCards[0].dataset.value === selectedCards[1].dataset.value) {
+                    // Match found
+                    selectedCards.forEach(c => {
+                        c.classList.remove('selected');
+                        c.classList.add('matched');
+                    });
+                    matchedPairs++;
+                    updateScore(10);
+                    
+                    if (matchedPairs === 6) {
+                        setTimeout(() => {
+                            alert('Congratulations! You completed the matching game!');
+                        }, 500);
+                    }
+                } else {
+                    // No match
+                    setTimeout(() => {
+                        selectedCards.forEach(c => {
+                            c.classList.remove('selected');
+                            c.querySelector('.card-back').style.display = 'block';
+                            c.querySelector('.card-front').style.display = 'none';
+                        });
+                    }, 1000);
+                }
+                selectedCards = [];
+            }
+        });
+        
+        container.appendChild(card);
+    });
+}
+
+function initializeFocusGame() {
+    const target = document.getElementById('target');
+    let targetInterval;
+    
+    function showTarget() {
+        if (!gameState.isPlaying) return;
+        
+        const x = Math.random() * (window.innerWidth - 200);
+        const y = Math.random() * (window.innerHeight - 200);
+        
+        target.style.left = x + 'px';
+        target.style.top = y + 'px';
+        target.style.display = 'block';
+        
+        setTimeout(() => {
+            if (target.style.display !== 'none') {
+                target.style.display = 'none';
+            }
+        }, 2000);
+    }
+    
+    target.addEventListener('click', () => {
+        if (gameState.isPlaying) {
+            target.classList.add('clicked');
+            updateScore(5);
+            
+            setTimeout(() => {
+                target.classList.remove('clicked');
+                target.style.display = 'none';
+            }, 200);
+        }
+    });
+    
+    function startGameLogic() {
+        targetInterval = setInterval(showTarget, 3000);
+    }
+    
+    window.startGameLogic = startGameLogic;
+}
+
+function initializeMemoryGame() {
+    const container = document.getElementById('memory-game');
+    container.innerHTML = '';
+    
+    const symbols = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
+    const cards = [...symbols, ...symbols];
+    
+    // Shuffle cards
+    for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+    
+    let flippedCards = [];
+    let matchedPairs = 0;
+    
+    cards.forEach((symbol, index) => {
+        const card = document.createElement('div');
+        card.className = 'memory-card';
+        card.dataset.symbol = symbol;
+        card.dataset.index = index;
+        card.textContent = '?';
+        
+        card.addEventListener('click', () => {
+            if (!gameState.isPlaying || card.classList.contains('flipped') || card.classList.contains('matched')) {
+                return;
+            }
+            
+            card.classList.add('flipped');
+            card.textContent = symbol;
+            flippedCards.push(card);
+            
+            if (flippedCards.length === 2) {
+                if (flippedCards[0].dataset.symbol === flippedCards[1].dataset.symbol) {
+                    // Match found
+                    flippedCards.forEach(c => {
+                        c.classList.add('matched');
+                    });
+                    matchedPairs++;
+                    updateScore(10);
+                    
+                    if (matchedPairs === symbols.length) {
+                        setTimeout(() => {
+                            alert('Congratulations! You completed the memory game!');
+                        }, 500);
+                    }
+                } else {
+                    // No match
+                    setTimeout(() => {
+                        flippedCards.forEach(c => {
+                            c.classList.remove('flipped');
+                            c.textContent = '?';
+                        });
+                    }, 1000);
+                }
+                flippedCards = [];
+            }
+        });
+        
+        container.appendChild(card);
+    });
+}
+
+function initializeMotorGame() {
+    const canvas = document.getElementById('drawing-canvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let drawingPath = [];
+    
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    
+    function startDrawing(e) {
+        if (!gameState.isPlaying) return;
+        isDrawing = true;
+        drawingPath = [];
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        drawingPath.push({x, y});
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
+    
+    function draw(e) {
+        if (!isDrawing || !gameState.isPlaying) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        drawingPath.push({x, y});
+        ctx.lineTo(x, y);
+        ctx.stroke();
+    }
+    
+    function stopDrawing() {
+        if (isDrawing && drawingPath.length > 10) {
+            updateScore(5);
+        }
+        isDrawing = false;
+    }
+    
+    // Clear canvas
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 3;
+}
+
+function initializeSortingGame() {
+    const items = ['🍎', '🍌', '🥕', '🥦', '🐶', '🐱', '🚗', '✈️'];
+    const categories = {
+        'Fruits': ['🍎', '🍌'],
+        'Vegetables': ['🥕', '🥦'],
+        'Animals': ['🐶', '🐱'],
+        'Vehicles': ['🚗', '✈️']
+    };
+    
+    const container = document.getElementById('items-to-sort');
+    container.innerHTML = '';
+    
+    items.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'card';
+        itemDiv.textContent = item;
+        itemDiv.draggable = true;
+        itemDiv.dataset.item = item;
+        container.appendChild(itemDiv);
+    });
+    
+    // Add drag and drop functionality
+    const sortAreas = document.querySelectorAll('.sorting-area');
+    sortAreas.forEach(area => {
+        area.addEventListener('dragover', e => e.preventDefault());
+        area.addEventListener('drop', handleDrop);
+    });
+}
+
+function initializeSequencingGame() {
+    const sequence = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
+    const shuffled = [...sequence].sort(() => Math.random() - 0.5);
+    
+    const container = document.getElementById('sequence-area');
+    container.innerHTML = '';
+    
+    shuffled.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'card';
+        itemDiv.textContent = item;
+        itemDiv.dataset.correctOrder = sequence.indexOf(item);
+        itemDiv.dataset.currentOrder = index;
+        container.appendChild(itemDiv);
+    });
+}
+
+function getEmoji(value) {
+    const emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮'];
+    return emojis[value % emojis.length];
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    const item = e.dataTransfer.getData('text');
+    const itemElement = document.querySelector(`[data-item="${item}"]`);
+    if (itemElement) {
+        e.target.appendChild(itemElement);
+        updateScore(5);
+    }
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ activity.title }} - NEURO Learning{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'therapy:activity_list' %}">Activities</a></li>
+                            <li class="breadcrumb-item active">{{ activity.title }}</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-brain text-primary me-2"></i>
+                        {{ activity.title }}
+                    </h1>
+                    <p class="text-muted mb-0">{{ activity.description }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    {% if user_role in 'therapist,teacher' and activity.created_by == user %}
+                    <a href="{% url 'therapy:activity_edit' activity.id %}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit me-2"></i>Edit
+                    </a>
+                    <a href="{% url 'therapy:activity_assign' activity.id %}" class="btn btn-outline-success">
+                        <i class="fas fa-user-plus me-2"></i>Assign
+                    </a>
+                    {% endif %}
+                    {% if user_role in 'child,parent' %}
+                        {% if assignment %}
+                        <a href="{% url 'therapy:activity_play' assignment.id %}" class="btn btn-primary">
+                            <i class="fas fa-play me-2"></i>Start Activity (ID: {{ assignment.id }})
+                        </a>
+                        <small class="text-muted d-block mt-1">Assignment ID: {{ assignment.id }} | Activity: {{ assignment.activity.title }}</small>
+                        {% else %}
+                        <button class="btn btn-secondary" disabled>
+                            <i class="fas fa-lock me-2"></i>Not Assigned
+                        </button>
+                        <small class="text-muted d-block mt-1">No assignment found for this user</small>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Activity Details -->
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                Activity Details
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Type:</strong> {{ activity.get_activity_type_display }}</p>
+                                    <p><strong>Difficulty:</strong> 
+                                        <span class="badge bg-{% if activity.difficulty_level == 'easy' %}success{% elif activity.difficulty_level == 'medium' %}warning{% else %}danger{% endif %}">
+                                            {{ activity.get_difficulty_level_display }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge bg-{% if activity.is_active %}success{% else %}secondary{% endif %}">
+                                            {% if activity.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </p>
+                                    <p><strong>Created by:</strong> {{ activity.created_by.get_full_name }}</p>
+                            <!-- Debug Info -->
+                            <hr>
+                            <small class="text-muted">
+                                <strong>Debug Info:</strong><br>
+                                User Role: {{ user_role }}<br>
+                                User: {{ user.get_full_name }}<br>
+                                Assignment: {% if assignment %}{{ assignment.id }}{% else %}None{% endif %}<br>
+                                Activity ID: {{ activity.id }}
+                            </small>
+                                </div>
+                            </div>
+                            
+                            {% if activity.instructions %}
+                            <hr>
+                            <h6>Instructions:</h6>
+                            <p>{{ activity.instructions }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Activity Items -->
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-list text-primary me-2"></i>
+                                    Activity Items
+                                </h5>
+                                {% if user_role in 'therapist,teacher' and activity.created_by == user %}
+                                <a href="{% url 'therapy:item_create' activity.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus me-2"></i>Add Item
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if items %}
+                            <div class="row">
+                                {% for item in items %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100">
+                                        {% if item.image %}
+                                        <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 200px; object-fit: cover;">
+                                        {% endif %}
+                                        <div class="card-body">
+                                            <h6 class="card-title">{{ item.title }}</h6>
+                                            {% if item.is_correct_answer %}
+                                            <span class="badge bg-success">Correct Answer</span>
+                                            {% endif %}
+                                            {% if item.group_id %}
+                                            <span class="badge bg-info">{{ item.group_id }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-list fa-2x text-muted mb-3"></i>
+                                <h6 class="text-muted">No items yet</h6>
+                                <p class="text-muted small">Add items to create a complete activity.</p>
+                                {% if user_role in 'therapist,teacher' and activity.created_by == user %}
+                                <a href="{% url 'therapy:item_create' activity.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus me-2"></i>Add First Item
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-users text-primary me-2"></i>
+                                Assigned Children
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {% if assignments %}
+                            <ul class="list-unstyled mb-0">
+                                {% for assignment in assignments %}
+                                <li class="mb-2">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center">
+                                            {% if assignment.child.profile_picture %}
+                                            <img src="{{ assignment.child.profile_picture.url }}" alt="{{ assignment.child.get_full_name }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                            {% else %}
+                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                            {% endif %}
+                                            <span>{{ assignment.child.get_full_name }}</span>
+                                        </div>
+                                        <span class="badge bg-{% if assignment.is_completed %}success{% else %}warning{% endif %}">
+                                            {% if assignment.is_completed %}Completed{% else %}Pending{% endif %}
+                                        </span>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="text-muted small mb-0">No children assigned yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if user_role in 'child,parent' %}
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-chart-line text-primary me-2"></i>
+                                Your Progress
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-0">Progress tracking will be available here.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

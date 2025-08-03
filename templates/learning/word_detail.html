@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Learn Word: {{ word.text }}</h2>
+<img src="{{ word.image.url }}" alt="{{ word.text }}" style="max-width:200px;">
+<div id="matching-game"></div>
+<button id="retry-btn">Retry</button>
+<div id="reward-area"></div>
+<script src="/static/js/word_matching.js"></script>
+{% endblock %} 

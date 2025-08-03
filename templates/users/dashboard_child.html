@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Child Dashboard - NEURO Learning Platform{% endblock %}
+
+{% block content %}
+<div class="child-dashboard-duo py-5">
+    <div class="duo-dashboard-container mx-auto">
+        <div class="duo-card welcome-card text-center shadow-sm mb-4" style="background: linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.35)), url('/static/img/header_bg.jpg') center center/cover no-repeat;">
+            <h2 class="duo-title mb-2">
+                <span class="me-2" style="font-size:2.5rem;">👋</span>Welcome, {{ user.get_full_name }}!
+            </h2>
+            <p class="duo-lead">Ready to learn and have fun?</p>
+        </div>
+        <div class="duo-card shadow-sm p-4">
+            <h3 class="duo-section-title mb-4 text-center">Start Learning</h3>
+            <div class="duo-dashboard-grid">
+                <a href="{% url 'learning:alphabet_learning' %}" class="duo-module-card duo-green text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                    <span class="duo-icon mb-2">🔤</span>
+                    <span class="duo-module-title">Alphabet Learning & Tracing</span>
+                </a>
+                <a href="{% url 'learning:number_learning' %}" class="duo-module-card duo-blue text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                    <span class="duo-icon mb-2">🔢</span>
+                    <span class="duo-module-title">Number Learning & Counting</span>
+                </a>
+                <a href="{% url 'learning:word_learning' %}" class="duo-module-card duo-purple text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                    <span class="duo-icon mb-2">🧸</span>
+                    <span class="duo-module-title">Word Learning & Matching</span>
+                </a>
+                <a href="{% url 'learning:progress_dashboard' %}" class="duo-module-card duo-gold text-center d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                    <span class="duo-icon mb-2">📈</span>
+                    <span class="duo-module-title">Progress Dashboard</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

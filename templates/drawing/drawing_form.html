@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit Drawing{% else %}New Drawing{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="duo-dashboard-container mx-auto py-5">
+    <div class="duo-card shadow-sm p-4" style="max-width: 600px; margin: 0 auto;">
+        <h2 class="duo-title mb-3 text-center">
+            {% if form.instance.pk %}Edit Drawing{% else %}Create New Drawing{% endif %}
+        </h2>
+        <div class="text-center mb-4" style="font-size:1.13rem; color:#1CB0F6; font-weight:600;">
+            {% if form.instance.pk %}
+                Update your drawing details and sharing preferences
+            {% else %}
+                Set up your new drawing with a title and sharing options
+            {% endif %}
+        </div>
+        <form method="post" id="drawingForm" action="{% url 'drawing:drawing_create' %}">
+            {% csrf_token %}
+            <div class="duo-profile-form">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <label for="{{ form.title.id_for_label }}" class="form-label" style="color:#58CC02; font-size:1.08rem; font-weight:700;">Drawing Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text" style="color:#888; font-size:0.98rem;">Give your drawing a descriptive name to help you find it later.</div>
+                    </div>
+                </div>
+                <div class="row g-4 mt-2">
+                    <div class="col-12">
+                        <label class="form-label" style="color:#A259FF; font-size:1.08rem; font-weight:700;">Sharing Settings</label>
+                        <div class="form-text mb-2" style="color:#888; font-size:0.98rem;">Choose who can view your drawing. You can change these settings later.</div>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="form-check">
+                                {{ form.shared_with_parents }}
+                                <label class="form-check-label">Share with Parents</label>
+                            </div>
+                            <div class="form-check">
+                                {{ form.shared_with_therapists }}
+                                <label class="form-check-label">Share with Therapists</label>
+                            </div>
+                            <div class="form-check">
+                                {{ form.shared_with_teachers }}
+                                <label class="form-check-label">Share with Teachers</label>
+                            </div>
+                        </div>
+                        {% if form.shared_with_parents.errors or form.shared_with_therapists.errors or form.shared_with_teachers.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.shared_with_parents.errors %}{{ error }}{% endfor %}
+                                {% for error in form.shared_with_therapists.errors %}{{ error }}{% endfor %}
+                                {% for error in form.shared_with_teachers.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row g-4 mt-2">
+                    <div class="col-12">
+                        <div class="preview-section p-3 rounded" style="background:#F7F7F7;">
+                            <div class="fw-bold mb-2" style="color:#1CB0F6; font-size:1.05rem;">Sharing Preview</div>
+                            <div class="preview-content" id="sharingPreview">
+                                <span style="color:#888; font-size:0.98rem;">Based on your current settings, this drawing will be visible to:</span>
+                                <ul class="mb-0" style="margin-top: 10px; padding-left: 20px;">
+                                    <li id="parentsPreview">Parents: <span class="text-success">✓ Shared</span></li>
+                                    <li id="therapistsPreview">Therapists: <span class="text-success">✓ Shared</span></li>
+                                    <li id="teachersPreview">Teachers: <span class="text-success">✓ Shared</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-4 gap-2">
+                    <a href="{% url 'drawing:drawing_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-success">
+                        {% if form.instance.pk %}Update Drawing{% else %}Create Drawing{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update sharing preview when checkboxes change
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const previewElements = {
+        'id_shared_with_parents': 'parentsPreview',
+        'id_shared_with_therapists': 'therapistsPreview',
+        'id_shared_with_teachers': 'teachersPreview'
+    };
+    function updateSharingPreview() {
+        checkboxes.forEach(checkbox => {
+            const previewId = previewElements[checkbox.id];
+            if (previewId) {
+                const previewElement = document.getElementById(previewId);
+                const statusSpan = previewElement.querySelector('span');
+                if (checkbox.checked) {
+                    statusSpan.textContent = '✓ Shared';
+                    statusSpan.className = 'text-success';
+                } else {
+                    statusSpan.textContent = '✗ Not Shared';
+                    statusSpan.className = 'text-danger';
+                }
+            }
+        });
+    }
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSharingPreview);
+    });
+    updateSharingPreview();
+});
+</script>
+{% endblock %} 

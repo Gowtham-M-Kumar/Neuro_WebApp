@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Alphabet Learning</h2>
+<div class="alphabet-list">
+  {% for letter in letters %}
+    <div class="letter-card">
+      <a href="{% url 'letter_detail' letter.char %}">
+        <img src="{{ letter.image.url }}" alt="{{ letter.char }}">
+        <div class="letter-char">{{ letter.char }}</div>
+      </a>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %} 

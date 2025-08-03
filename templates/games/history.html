@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Game History{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">
+                <i class="fas fa-history text-primary"></i>
+                Game History
+            </h1>
+        </div>
+    </div>
+
+    <!-- History Summary -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar"></i>
+                        Session Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="history-stat">
+                                <h4 class="text-primary">{{ sessions|length }}</h4>
+                                <small class="text-muted">Total Sessions</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="history-stat">
+                                <h4 class="text-success">
+                                    {% for session in sessions %}
+                                        {% if session.completed %}
+                                            {% if forloop.first %}{{ forloop.counter }}{% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </h4>
+                                <small class="text-muted">Completed</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="history-stat">
+                                <h4 class="text-warning">
+                                    {% for session in sessions %}
+                                        {% if not session.completed %}
+                                            {% if forloop.first %}{{ forloop.counter }}{% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </h4>
+                                <small class="text-muted">Incomplete</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="history-stat">
+                                <h4 class="text-info">
+                                    {% for session in sessions %}
+                                        {% if forloop.first %}{{ session.started_at|date:"M d" }}{% endif %}
+                                    {% endfor %}
+                                </h4>
+                                <small class="text-muted">Last Played</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Sessions Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i>
+                        All Game Sessions
+                    </h5>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="filterSessions('all')">
+                            All
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="filterSessions('completed')">
+                            Completed
+                        </button>
+                        <button type="button" class="btn btn-outline-warning btn-sm" onclick="filterSessions('incomplete')">
+                            Incomplete
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if sessions %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="sessions-table">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Game</th>
+                                    <th>Level</th>
+                                    <th>Score</th>
+                                    <th>Time Taken</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for session in sessions %}
+                                <tr class="session-row" data-status="{% if session.completed %}completed{% else %}incomplete{% endif %}">
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold">{{ session.started_at|date:"M d, Y" }}</span>
+                                            <small class="text-muted">{{ session.started_at|time:"H:i" }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if session.game.name == "Color Matching Game" %}
+                                                <i class="fas fa-palette text-success me-2"></i>
+                                            {% else %}
+                                                <i class="fas fa-gamepad text-primary me-2"></i>
+                                            {% endif %}
+                                            <span>{{ session.game.name }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ session.level }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">{{ session.score }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">{{ session.time_taken }}s</span>
+                                    </td>
+                                    <td>
+                                        {% if session.completed %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i> Completed
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock"></i> Incomplete
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-info" 
+                                                onclick="showSessionDetails({{ session.id }})">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <h5>No game sessions found</h5>
+                        <p>Start playing games to see your history here!</p>
+                        <a href="{% url 'games:dashboard' %}" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Start Playing
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Chart -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line"></i>
+                        Performance Over Time
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{% url 'games:dashboard' %}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-arrow-left"></i> Back to Games
+            </a>
+            <a href="{% url 'games:progress' %}" class="btn btn-outline-info">
+                <i class="fas fa-chart-bar"></i> View Progress
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Session Details Modal -->
+<div class="modal fade" id="sessionDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle"></i>
+                    Session Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="session-details-content">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.history-stat {
+    padding: 1rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #6c757d;
+    background-color: #f8f9fa;
+}
+
+.session-row {
+    transition: background-color 0.2s ease;
+}
+
+.session-row:hover {
+    background-color: #f8f9fa;
+}
+
+.badge {
+    font-size: 0.8rem;
+}
+
+.btn-group .btn {
+    border-radius: 20px;
+    margin: 0 2px;
+}
+
+.btn {
+    border-radius: 20px;
+}
+
+#performanceChart {
+    max-height: 300px;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Filter sessions
+function filterSessions(status) {
+    const rows = document.querySelectorAll('.session-row');
+    rows.forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Show session details
+function showSessionDetails(sessionId) {
+    // This would typically make an AJAX call to get detailed session info
+    // For now, we'll show a placeholder
+    const modal = new bootstrap.Modal(document.getElementById('sessionDetailsModal'));
+    document.getElementById('session-details-content').innerHTML = `
+        <div class="text-center">
+            <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+            <p class="mt-2">Loading session details...</p>
+        </div>
+    `;
+    modal.show();
+}
+
+// Performance chart
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    
+    // Sample data - in a real app, this would come from the backend
+    const chartData = {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{
+            label: 'Average Score',
+            data: [65, 72, 78, 85],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            tension: 0.4
+        }, {
+            label: 'Completion Rate',
+            data: [60, 70, 80, 90],
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            tension: 0.4
+        }]
+    };
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

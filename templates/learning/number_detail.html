@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Learn Number: {{ number.value }}</h2>
+<img src="{{ number.image.url }}" alt="{{ number.value }}" style="max-width:200px;">
+<div id="counting-objects"></div>
+<button id="retry-btn">Retry</button>
+<div id="reward-area"></div>
+<script src="/static/js/number_counting.js"></script>
+{% endblock %} 

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Progress Report - NEURO Learning{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-chart-line text-primary me-2"></i>
+                    Progress Report
+                </h1>
+            </div>
+
+            <!-- Filters -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            {{ filter_form.activity_type.label_tag }}
+                            {{ filter_form.activity_type }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.date_from.label_tag }}
+                            {{ filter_form.date_from }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.date_to.label_tag }}
+                            {{ filter_form.date_to }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-filter me-2"></i>Filter
+                                </button>
+                                <a href="{% url 'therapy:progress_report' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Clear
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if progress_data %}
+            <div class="row">
+                {% for progress in progress_data %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-user me-2"></i>
+                                    {{ progress.child.get_full_name }}
+                                </h5>
+                                <span class="badge bg-info">{{ progress.get_activity_type_display }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center mb-3">
+                                <div class="col-3">
+                                    <div class="text-primary fw-bold">{{ progress.total_attempts }}</div>
+                                    <small class="text-muted">Attempts</small>
+                                </div>
+                                <div class="col-3">
+                                    <div class="text-success fw-bold">{{ progress.successful_attempts }}</div>
+                                    <small class="text-muted">Success</small>
+                                </div>
+                                <div class="col-3">
+                                    <div class="text-warning fw-bold">{{ progress.success_rate }}%</div>
+                                    <small class="text-muted">Rate</small>
+                                </div>
+                                <div class="col-3">
+                                    <div class="text-info fw-bold">{{ progress.best_score }}</div>
+                                    <small class="text-muted">Best</small>
+                                </div>
+                            </div>
+                            
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {{ progress.success_rate }}%" 
+                                     aria-valuenow="{{ progress.success_rate }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Average Score:</small><br>
+                                    <strong>{{ progress.average_score|floatformat:1 }}</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Last Attempt:</small><br>
+                                    <strong>{{ progress.last_attempt_date|date:"M d, Y"|default:"Never" }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-chart-line fa-3x text-muted"></i>
+                </div>
+                <h4 class="text-muted">No Progress Data Found</h4>
+                <p class="text-muted">
+                    {% if user_role in 'child' %}
+                    You haven't completed any activities yet.
+                    {% elif user_role in 'parent' %}
+                    Your children haven't completed any activities yet.
+                    {% else %}
+                    No progress data available for the selected filters.
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

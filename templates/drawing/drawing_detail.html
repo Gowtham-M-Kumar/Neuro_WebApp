@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Drawing Details - NEURO Learn{% endblock %}
+
+{% block extra_css %}
+<style>
+    .drawing-detail-container {
+        padding: 20px;
+        background: #f8f9fa;
+        min-height: calc(100vh - 100px);
+    }
+    
+    .detail-header {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .detail-title {
+        font-size: 2rem;
+        color: #495057;
+        margin-bottom: 10px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .detail-meta {
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .meta-item i {
+        color: #007bff;
+    }
+    
+    .detail-actions {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-detail {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #545b62;
+        transform: translateY(-2px);
+    }
+    
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-success:hover {
+        background: #1e7e34;
+        transform: translateY(-2px);
+    }
+    
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+    
+    .drawing-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .drawing-display {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .canvas-container {
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        background: white;
+    }
+    
+    #detailCanvas {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .drawing-info {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .info-section {
+        margin-bottom: 25px;
+    }
+    
+    .info-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 500;
+        color: #495057;
+    }
+    
+    .info-value {
+        color: #6c757d;
+    }
+    
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-completed {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-in-progress {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .sharing-section {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .sharing-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .sharing-item:last-child {
+        border-bottom: none;
+    }
+    
+    .sharing-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+    
+    .icon-parents {
+        background: #007bff;
+    }
+    
+    .icon-therapists {
+        background: #28a745;
+    }
+    
+    .icon-teachers {
+        background: #ffc107;
+        color: #212529;
+    }
+    
+    .sharing-text {
+        flex: 1;
+    }
+    
+    .sharing-label {
+        font-weight: 500;
+        color: #495057;
+    }
+    
+    .sharing-status {
+        font-size: 12px;
+        color: #6c757d;
+    }
+    
+    .version-history {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .version-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .version-item:last-child {
+        border-bottom: none;
+    }
+    
+    .version-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #007bff;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    
+    .version-info {
+        flex: 1;
+    }
+    
+    .version-date {
+        font-size: 12px;
+        color: #6c757d;
+    }
+    
+    .version-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-small {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    @media (max-width: 768px) {
+        .drawing-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .detail-meta {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .detail-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="duo-dashboard-container mx-auto py-5">
+    <div class="duo-card shadow-sm p-4" style="max-width: 700px; margin: 0 auto;">
+        <h2 class="duo-title mb-3 text-center">{{ drawing.title|default:"Untitled Drawing" }}</h2>
+        <div class="mb-4 text-center">
+            <img src="{{ drawing.image.url }}" alt="Drawing Preview" style="max-width: 100%; border-radius: 1.2rem; box-shadow: 0 2px 12px rgba(60,60,60,0.10);">
+        </div>
+        <div class="mb-3 text-center text-muted">Created: {{ drawing.created_at|date:"M d, Y" }}</div>
+        <div class="d-flex justify-content-center gap-2 mt-4">
+            <a href="{% url 'drawing:drawing_edit' drawing.pk %}" class="btn btn-outline-success">Edit</a>
+            <a href="{% url 'drawing:drawing_list' %}" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load drawing on canvas
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('detailCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Load drawing data
+    const drawingData = {{ drawing.canvas_data|safe }};
+    
+    if (drawingData && drawingData.strokes) {
+        drawingData.strokes.forEach(stroke => {
+            ctx.strokeStyle = stroke.color;
+            ctx.lineWidth = stroke.size;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            if (stroke.points && stroke.points.length >= 4) {
+                ctx.beginPath();
+                ctx.moveTo(stroke.points[0], stroke.points[1]);
+                ctx.lineTo(stroke.points[2], stroke.points[3]);
+                ctx.stroke();
+            }
+        });
+    }
+});
+
+// Export drawing function
+function exportDrawing() {
+    const canvas = document.getElementById('detailCanvas');
+    const link = document.createElement('a');
+    link.download = '{{ drawing.title|slugify }}.png';
+    link.href = canvas.toDataURL();
+    link.click();
+}
+</script>
+{% endblock %} 
